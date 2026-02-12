@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cryptography Lab - DES & AES</title>
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            margin-top: 40px;
+        }
+        .box {
+            border: 2px solid #333;
+            padding: 20px;
+            width: 400px;
+            margin: auto;
+        }
+        input, select, button {
+            padding: 8px;
+            margin: 8px;
+            width: 90%;
+        }
+        textarea {
+            width: 90%;
+            height: 60px;
+            margin: 8px;
+        }
+        h3 {
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>Cryptography Lab</h2>
+    <h3>DES & AES Demonstration</h3>
+
+    <input type="text" id="plainText" placeholder="Enter Plain Text">
+    <input type="text" id="key" placeholder="Enter Key">
+
+    <select id="algorithm">
+        <option value="des">DES</option>
+        <option value="aes">AES</option>
+    </select>
+
+    <button onclick="encrypt()">Encrypt</button>
+    <button onclick="decrypt()">Decrypt</button>
+
+    <h3>Encrypted Text</h3>
+    <textarea id="encryptedText" readonly></textarea>
+
+    <h3>Decrypted Text</h3>
+    <textarea id="decryptedText" readonly></textarea>
+</div>
+
+<script>
+
+// -------- DES (XOR) --------
+function desProcess(text, key) {
+    let output = "";
+    for (let i = 0; i < text.length; i++) {
+        output += String.fromCharCode(
+            text.charCodeAt(i) ^ key.charCodeAt(i % key.length)
+        );
+    }
+    return output;
+}
+
+// -------- AES (Add/Sub mod 256) --------
+function aesEncrypt(text, key) {
+    let output = "";
+    for (let i = 0; i < text.length; i++) {
+        let value = (text.charCodeAt(i) + key.charCodeAt(i % key.length)) % 256;
+        output += String.fromCharCode(value);
+    }
+    return output;
+}
+
+function aesDecrypt(text, key) {
+    let output = "";
+    for (let i = 0; i < text.length; i++) {
+        let value = (text.charCodeAt(i) - key.charCodeAt(i % key.length) + 256) % 256;
+        output += String.fromCharCode(value);
+    }
+    return output;
+}
+
+// -------- ENCRYPT FUNCTION --------
+function encrypt() {
+    let plain = document.getElementById("plainText").value;
+    let key = document.getElementById("key").value;
+    let algo = document.getElementById("algorithm").value;
+
+    if (!plain || !key) {
+        alert("Enter Plain Text and Key!");
+        return;
+    }
+
+    let processed;
+
+    if (algo === "des") {
+        processed = desProcess(plain, key);
+    } else {
+        processed = aesEncrypt(plain, key);
+    }
+
+    document.getElementById("encryptedText").value = btoa(processed);
+    document.getElementById("decryptedText").value = "";
+}
+
+// -------- DECRYPT FUNCTION --------
+function decrypt() {
+    let encrypted = document.getElementById("encryptedText").value;
+    let key = document.getElementById("key").value;
+    let algo = document.getElementById("algorithm").value;
+
+    if (!encrypted || !key) {
+        alert("Encrypt first!");
+        return;
+    }
+
+    let decoded = atob(encrypted);
+    let result;
+
+    if (algo === "des") {
+        result = desProcess(decoded, key);
+    } else {
+        result = aesDecrypt(decoded, key);
+    }
+
+    document.getElementById("decryptedText").value = result;
+}
+
+</script>
+
+</body>
+</html>
