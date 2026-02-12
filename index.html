@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>DES & AES Lab</title>
+<title>DES & AES Binary Lab</title>
 
 <style>
 *{
@@ -21,7 +21,7 @@ body{
     height:100vh;
 }
 
-/* LEFT SIDE */
+/* LEFT PANEL */
 .left{
     width:30%;
     background:#f4f4f4;
@@ -43,7 +43,7 @@ body{
     cursor:pointer;
 }
 
-/* RIGHT SIDE */
+/* RIGHT PANEL */
 .right{
     width:70%;
     padding:15px;
@@ -68,6 +68,7 @@ textarea{
     resize:none;
     width:100%;
     padding:10px;
+    font-family:monospace;
 }
 
 </style>
@@ -77,7 +78,7 @@ textarea{
 
 <div class="container">
 
-    <!-- LEFT PANEL -->
+    <!-- LEFT SIDE -->
     <div class="left">
         <h2>Cryptography Lab</h2>
 
@@ -97,7 +98,7 @@ textarea{
         <button onclick="decrypt()">Decrypt</button>
     </div>
 
-    <!-- RIGHT PANEL -->
+    <!-- RIGHT SIDE -->
     <div class="right">
 
         <div class="output-box">
@@ -106,7 +107,7 @@ textarea{
         </div>
 
         <div class="output-box">
-            <h3>Encrypted Output</h3>
+            <h3>Encrypted Output (Binary)</h3>
             <textarea id="encrypted" readonly></textarea>
         </div>
 
@@ -132,8 +133,8 @@ function encrypt(){
         return;
     }
 
-    let result="";
     let steps="";
+    let binaryOutput="";
 
     for(let i=0;i<text.length;i++){
 
@@ -150,32 +151,33 @@ function encrypt(){
             steps+=`Step ${i+1}: ${t} + ${k} mod 256 = ${p}\n`;
         }
 
-        result+=String.fromCharCode(p);
+        binaryOutput += p.toString(2).padStart(8,'0') + " ";
     }
 
     document.getElementById("steps").value=steps;
-    document.getElementById("encrypted").value=btoa(result);
+    document.getElementById("encrypted").value=binaryOutput.trim();
     document.getElementById("decrypted").value="";
 }
 
+
 function decrypt(){
 
-    let encrypted=document.getElementById("encrypted").value;
+    let binary=document.getElementById("encrypted").value.trim();
     let key=document.getElementById("key").value;
     let algo=document.getElementById("algorithm").value;
 
-    if(encrypted=="" || key==""){
+    if(binary=="" || key==""){
         alert("Encrypt first!");
         return;
     }
 
-    let decoded=atob(encrypted);
+    let binaryArray=binary.split(" ");
     let result="";
     let steps="";
 
-    for(let i=0;i<decoded.length;i++){
+    for(let i=0;i<binaryArray.length;i++){
 
-        let t=decoded.charCodeAt(i);
+        let t=parseInt(binaryArray[i],2);
         let k=key.charCodeAt(i % key.length);
         let p;
 
