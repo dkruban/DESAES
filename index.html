@@ -1,134 +1,198 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Cry_Lab_23bcsl06 - DES & AES</title>
-    <style>
-        body {
-            font-family: Arial;
-            text-align: center;
-            margin-top: 40px;
-        }
-        .box {
-            border: 2px solid #333;
-            padding: 20px;
-            width: 400px;
-            margin: auto;
-        }
-        input, select, button {
-            padding: 8px;
-            margin: 8px;
-            width: 90%;
-        }
-        textarea {
-            width: 90%;
-            height: 60px;
-            margin: 8px;
-        }
-        h3 {
-            margin-top: 15px;
-        }
-    </style>
+<title>DES & AES Lab</title>
+
+<style>
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:Arial;
+    height:100vh;
+    display:flex;
+}
+
+.container{
+    display:flex;
+    width:100%;
+    height:100vh;
+}
+
+/* LEFT SIDE */
+.left{
+    width:30%;
+    background:#f4f4f4;
+    padding:20px;
+    border-right:2px solid black;
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+.left input,
+.left select,
+.left button{
+    padding:8px;
+    width:100%;
+}
+
+.left button{
+    cursor:pointer;
+}
+
+/* RIGHT SIDE */
+.right{
+    width:70%;
+    padding:15px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+/* Output Areas */
+.output-box{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+}
+
+.output-box h3{
+    margin:5px 0;
+}
+
+textarea{
+    flex:1;
+    resize:none;
+    width:100%;
+    padding:10px;
+}
+
+</style>
 </head>
+
 <body>
 
-<div class="box">
-    <h2>Cry_Lab_23bcsl06</h2>
-    <h3>DES & AES </h3>
+<div class="container">
 
-    <input type="text" id="plainText" placeholder="Enter Plain Text">
-    <input type="text" id="key" placeholder="Enter Key">
+    <!-- LEFT PANEL -->
+    <div class="left">
+        <h2>Cryptography Lab</h2>
 
-    <select id="algorithm">
-        <option value="des">DES</option>
-        <option value="aes">AES</option>
-    </select>
+        <label>Plain Text</label>
+        <input type="text" id="plainText">
 
-    <button onclick="encrypt()">Encrypt</button>
-    <button onclick="decrypt()">Decrypt</button>
+        <label>Key</label>
+        <input type="text" id="key">
 
-    <h3>Encrypted Text</h3>
-    <textarea id="encryptedText" readonly></textarea>
+        <label>Algorithm</label>
+        <select id="algorithm">
+            <option value="des">DES (XOR)</option>
+            <option value="aes">AES (Add/Sub)</option>
+        </select>
 
-    <h3>Decrypted Text</h3>
-    <textarea id="decryptedText" readonly></textarea>
+        <button onclick="encrypt()">Encrypt</button>
+        <button onclick="decrypt()">Decrypt</button>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right">
+
+        <div class="output-box">
+            <h3>Step-by-Step Process</h3>
+            <textarea id="steps" readonly></textarea>
+        </div>
+
+        <div class="output-box">
+            <h3>Encrypted Output</h3>
+            <textarea id="encrypted" readonly></textarea>
+        </div>
+
+        <div class="output-box">
+            <h3>Decrypted Output</h3>
+            <textarea id="decrypted" readonly></textarea>
+        </div>
+
+    </div>
+
 </div>
 
 <script>
 
-// -------- DES (XOR) --------
-function desProcess(text, key) {
-    let output = "";
-    for (let i = 0; i < text.length; i++) {
-        output += String.fromCharCode(
-            text.charCodeAt(i) ^ key.charCodeAt(i % key.length)
-        );
-    }
-    return output;
-}
+function encrypt(){
 
-// -------- AES (Add/Sub mod 256) --------
-function aesEncrypt(text, key) {
-    let output = "";
-    for (let i = 0; i < text.length; i++) {
-        let value = (text.charCodeAt(i) + key.charCodeAt(i % key.length)) % 256;
-        output += String.fromCharCode(value);
-    }
-    return output;
-}
+    let text=document.getElementById("plainText").value;
+    let key=document.getElementById("key").value;
+    let algo=document.getElementById("algorithm").value;
 
-function aesDecrypt(text, key) {
-    let output = "";
-    for (let i = 0; i < text.length; i++) {
-        let value = (text.charCodeAt(i) - key.charCodeAt(i % key.length) + 256) % 256;
-        output += String.fromCharCode(value);
-    }
-    return output;
-}
-
-// -------- ENCRYPT FUNCTION --------
-function encrypt() {
-    let plain = document.getElementById("plainText").value;
-    let key = document.getElementById("key").value;
-    let algo = document.getElementById("algorithm").value;
-
-    if (!plain || !key) {
-        alert("Enter Plain Text and Key!");
+    if(text=="" || key==""){
+        alert("Enter Plaintext and Key");
         return;
     }
 
-    let processed;
+    let result="";
+    let steps="";
 
-    if (algo === "des") {
-        processed = desProcess(plain, key);
-    } else {
-        processed = aesEncrypt(plain, key);
+    for(let i=0;i<text.length;i++){
+
+        let t=text.charCodeAt(i);
+        let k=key.charCodeAt(i % key.length);
+        let p;
+
+        if(algo==="des"){
+            p=t ^ k;
+            steps+=`Step ${i+1}: ${t} XOR ${k} = ${p}\n`;
+        }
+        else{
+            p=(t+k)%256;
+            steps+=`Step ${i+1}: ${t} + ${k} mod 256 = ${p}\n`;
+        }
+
+        result+=String.fromCharCode(p);
     }
 
-    document.getElementById("encryptedText").value = btoa(processed);
-    document.getElementById("decryptedText").value = "";
+    document.getElementById("steps").value=steps;
+    document.getElementById("encrypted").value=btoa(result);
+    document.getElementById("decrypted").value="";
 }
 
-// -------- DECRYPT FUNCTION --------
-function decrypt() {
-    let encrypted = document.getElementById("encryptedText").value;
-    let key = document.getElementById("key").value;
-    let algo = document.getElementById("algorithm").value;
+function decrypt(){
 
-    if (!encrypted || !key) {
+    let encrypted=document.getElementById("encrypted").value;
+    let key=document.getElementById("key").value;
+    let algo=document.getElementById("algorithm").value;
+
+    if(encrypted=="" || key==""){
         alert("Encrypt first!");
         return;
     }
 
-    let decoded = atob(encrypted);
-    let result;
+    let decoded=atob(encrypted);
+    let result="";
+    let steps="";
 
-    if (algo === "des") {
-        result = desProcess(decoded, key);
-    } else {
-        result = aesDecrypt(decoded, key);
+    for(let i=0;i<decoded.length;i++){
+
+        let t=decoded.charCodeAt(i);
+        let k=key.charCodeAt(i % key.length);
+        let p;
+
+        if(algo==="des"){
+            p=t ^ k;
+            steps+=`Step ${i+1}: ${t} XOR ${k} = ${p}\n`;
+        }
+        else{
+            p=(t-k+256)%256;
+            steps+=`Step ${i+1}: ${t} - ${k} mod 256 = ${p}\n`;
+        }
+
+        result+=String.fromCharCode(p);
     }
 
-    document.getElementById("decryptedText").value = result;
+    document.getElementById("steps").value=steps;
+    document.getElementById("decrypted").value=result;
 }
 
 </script>
